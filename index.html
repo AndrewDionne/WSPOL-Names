@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Polish Name Flashcards</title>
   <style>
     body {
@@ -10,119 +10,112 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #f9f9f9;
+      padding: 1rem;
+      background-color: #f0f0f0;
     }
     .card {
-      width: 90vw;
-      max-width: 350px;
+      width: 300px;
       height: 200px;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: 1.5rem;
-      padding: 1em;
-      cursor: pointer;
-      transition: transform 0.6s;
-      backface-visibility: hidden;
+      perspective: 1000px;
+      margin-bottom: 1rem;
     }
-    .navigation {
-      margin-top: 2em;
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
       display: flex;
-      gap: 1em;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .card-front {
+      background-color: white;
+      font-size: 1.5rem;
+    }
+    .card-back {
+      background-color: #fdfdfd;
+      transform: rotateY(180deg);
+      flex-direction: column;
+      padding: 1rem;
+      text-align: center;
     }
     button {
-      padding: 0.5em 1em;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
       font-size: 1rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 5px;
       background-color: #007bff;
       color: white;
-    }
-    .pronunciation {
-      font-size: 1rem;
-      margin-top: 0.5em;
     }
   </style>
 </head>
 <body>
-
-  <div class="card" id="flashcard" onclick="flipCard()">
-    <div id="card-content"></div>
-  </div>
-
-  <div class="navigation">
-    <button onclick="prevCard()">Previous</button>
-    <button onclick="nextCard()">Next</button>
-  </div>
-
+  <h1>Polish Name Flashcards</h1>
+  <div id="flashcards"></div>
   <script>
-    const cards = [
-      { name: "Kozłowski, Maciej", pron: "Koz-wov-ski, Ma-chyay" },
-      { name: "Wieczorek, Grzegorz", pron: "Vyeh-cho-rek, G-zhe-gosh" },
-      { name: "Szlaska, Anna", pron: "Shla-ska, An-na" },
-      { name: "Kilijańska, Małgorzata", pron: "Kee-lee-yanska, Maʷwo-go-zha-ta" },
-      { name: "Matyja, Andrzej", pron: "Ma-ty-ya, And-zhey" },
-      { name: "Kowalska-Ocneanu, Ewa", pron: "Ko-val-ska Otch-neh-a-noo, Eh-va" },
-      { name: "Hofman, Sylwester", pron: "Hoff-man, Sil-ves-ter" },
-      { name: "Szopa, Łukasz", pron: "Sho-pa, Woo-kash" },
-      { name: "Bielazik, Krzysztof", pron: "Byeh-la-zeek, K-zhi-sh-tof" },
-      { name: "Pawłowska, Beata", pron: "Pav-wov-ska, Be-ah-ta" },
-      // Add the rest of the names similarly...
+    const flashcards = [
+      { name: "Maciej Kozłowski", pronunciation: "MAH-chey ko-ZWAWF-skee", audio: "Maciej Kozlowski" },
+      { name: "Grzegorz Wieczorek", pronunciation: "GZHEH-gawsh vye-CHO-rek", audio: "Grzegorz Wieczorek" },
+      { name: "Anna Szlaska", pronunciation: "AN-nah SHLAH-skah", audio: "Anna Szlaska" },
+      // Add more entries as needed...
     ];
 
-    let currentIndex = 0;
-    let flipped = false;
-    const cardContent = document.getElementById("card-content");
+    const container = document.getElementById("flashcards");
 
-    function flipCard() {
-      flipped = !flipped;
-      renderCard();
-    }
+    flashcards.forEach(card => {
+      const cardDiv = document.createElement("div");
+      cardDiv.className = "card";
 
-    function playAudio(name) {
-      const filename = name.replace(/,|\s|\u0141/g, match => {
-        if (match === ',') return '';
-        if (match === ' ') return '_';
-        if (match === '\u0141') return 'L';
-        return '';
+      const cardInner = document.createElement("div");
+      cardInner.className = "card-inner";
+
+      const front = document.createElement("div");
+      front.className = "card-front";
+      front.textContent = card.name;
+
+      const back = document.createElement("div");
+      back.className = "card-back";
+
+      const pronunciation = document.createElement("div");
+      pronunciation.textContent = card.pronunciation;
+
+      const audioBtn = document.createElement("button");
+      audioBtn.textContent = "🔊 Play";
+      audioBtn.onclick = (e) => {
+        e.stopPropagation();
+        const utter = new SpeechSynthesisUtterance(card.name);
+        utter.lang = "pl-PL";
+        window.speechSynthesis.speak(utter);
+      };
+
+      back.appendChild(pronunciation);
+      back.appendChild(audioBtn);
+
+      cardInner.appendChild(front);
+      cardInner.appendChild(back);
+      cardDiv.appendChild(cardInner);
+
+      cardDiv.addEventListener("click", () => {
+        cardDiv.classList.toggle("flipped");
       });
-      const audio = new Audio(`audio/${filename}.mp3`);
-      audio.play();
-    }
 
-    function renderCard() {
-      const card = cards[currentIndex];
-      if (!flipped) {
-        cardContent.innerHTML = `${card.name}`;
-      } else {
-        cardContent.innerHTML = `
-          <div>${card.name}</div>
-          <div class="pronunciation">${card.pron}</div>
-          <button onclick="event.stopPropagation(); playAudio('${card.name}')">🔊 Play</button>
-        `;
-      }
-    }
-
-    function nextCard() {
-      if (currentIndex < cards.length - 1) currentIndex++;
-      flipped = false;
-      renderCard();
-    }
-
-    function prevCard() {
-      if (currentIndex > 0) currentIndex--;
-      flipped = false;
-      renderCard();
-    }
-
-    renderCard();
+      container.appendChild(cardDiv);
+    });
   </script>
 </body>
 </html>
