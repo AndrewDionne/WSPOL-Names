@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polish Name Flashcards</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f9f9f9;
+    }
+    .card {
+      width: 90vw;
+      max-width: 350px;
+      height: 200px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 1.5rem;
+      padding: 1em;
+      cursor: pointer;
+      transition: transform 0.6s;
+      backface-visibility: hidden;
+    }
+    .navigation {
+      margin-top: 2em;
+      display: flex;
+      gap: 1em;
+    }
+    button {
+      padding: 0.5em 1em;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #007bff;
+      color: white;
+    }
+    .pronunciation {
+      font-size: 1rem;
+      margin-top: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="flashcard" onclick="flipCard()">
+    <div id="card-content"></div>
+  </div>
+
+  <div class="navigation">
+    <button onclick="prevCard()">Previous</button>
+    <button onclick="nextCard()">Next</button>
+  </div>
+
+  <script>
+    const cards = [
+      { name: "Kozłowski, Maciej", pron: "Koz-wov-ski, Ma-chyay" },
+      { name: "Wieczorek, Grzegorz", pron: "Vyeh-cho-rek, G-zhe-gosh" },
+      { name: "Szlaska, Anna", pron: "Shla-ska, An-na" },
+      { name: "Kilijańska, Małgorzata", pron: "Kee-lee-yanska, Maʷwo-go-zha-ta" },
+      { name: "Matyja, Andrzej", pron: "Ma-ty-ya, And-zhey" },
+      { name: "Kowalska-Ocneanu, Ewa", pron: "Ko-val-ska Otch-neh-a-noo, Eh-va" },
+      { name: "Hofman, Sylwester", pron: "Hoff-man, Sil-ves-ter" },
+      { name: "Szopa, Łukasz", pron: "Sho-pa, Woo-kash" },
+      { name: "Bielazik, Krzysztof", pron: "Byeh-la-zeek, K-zhi-sh-tof" },
+      { name: "Pawłowska, Beata", pron: "Pav-wov-ska, Be-ah-ta" },
+      // Add the rest of the names similarly...
+    ];
+
+    let currentIndex = 0;
+    let flipped = false;
+    const cardContent = document.getElementById("card-content");
+
+    function flipCard() {
+      flipped = !flipped;
+      renderCard();
+    }
+
+    function playAudio(name) {
+      const filename = name.replace(/,|\s|\u0141/g, match => {
+        if (match === ',') return '';
+        if (match === ' ') return '_';
+        if (match === '\u0141') return 'L';
+        return '';
+      });
+      const audio = new Audio(`audio/${filename}.mp3`);
+      audio.play();
+    }
+
+    function renderCard() {
+      const card = cards[currentIndex];
+      if (!flipped) {
+        cardContent.innerHTML = `${card.name}`;
+      } else {
+        cardContent.innerHTML = `
+          <div>${card.name}</div>
+          <div class="pronunciation">${card.pron}</div>
+          <button onclick="event.stopPropagation(); playAudio('${card.name}')">🔊 Play</button>
+        `;
+      }
+    }
+
+    function nextCard() {
+      if (currentIndex < cards.length - 1) currentIndex++;
+      flipped = false;
+      renderCard();
+    }
+
+    function prevCard() {
+      if (currentIndex > 0) currentIndex--;
+      flipped = false;
+      renderCard();
+    }
+
+    renderCard();
+  </script>
+</body>
+</html>
